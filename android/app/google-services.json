@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "93054487864",
+    "project_id": "onlinewall-84590",
+    "storage_bucket": "onlinewall-84590.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93054487864:android:a6880a1735f745bf9685cd",
+        "android_client_info": {
+          "package_name": "com.example.wall_online"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIylDE_T-Ugre7vsZgGjfHAhbel3VVFOw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

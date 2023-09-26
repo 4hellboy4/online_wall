@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class LoginText extends StatelessWidget {
-  const LoginText({
+class RegText extends StatelessWidget {
+  const RegText({
     Key? key,
     required this.onTap,
   }) : super(key: key);
@@ -16,13 +16,13 @@ class LoginText extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            "Not a member?",
+            "Already have an account?",
             style: TextStyle(
               color: Colors.grey[700],
             ),
           ),
           const Text(
-            "Register now",
+            "Login now",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.blue,

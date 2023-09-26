@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wall_online/pages/register_page.dart';
+import 'package:wall_online/provider/log_or_reg_toggle.dart';
 import 'package:wall_online/widgets/login_text/login_text.dart';
 import 'package:wall_online/widgets/my_button/my_button.dart';
 import 'package:wall_online/widgets/my_text_field/my_text_field.dart';
@@ -13,6 +16,15 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
+
+  void goToAuthPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RegisterPage(),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -62,7 +74,10 @@ class _LoginPageState extends State<LoginPage> {
                 onTap: () {},
               ),
               const SizedBox(height: 15),
-              const LoginText(),
+              LoginText(
+                onTap: Provider.of<ToggleProvider>(context, listen: false)
+                    .tapToggle,
+              ),
             ],
           ),
         ),

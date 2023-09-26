@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wall_online/provider/log_or_reg_toggle.dart';
 import 'package:wall_online/widgets/login_text/login_text.dart';
 import 'package:wall_online/widgets/my_button/my_button.dart';
 import 'package:wall_online/widgets/my_text_field/my_text_field.dart';
+import 'package:wall_online/widgets/register_text/reg_text.dart';
 
-class RegosterPage extends StatefulWidget {
-  const RegosterPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
 
   @override
-  _RegosterPageState createState() => _RegosterPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegosterPageState extends State<RegosterPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmedPassword = TextEditingController();
@@ -56,12 +59,12 @@ class _RegosterPageState extends State<RegosterPage> {
               MyTextField(
                 controller: _password,
                 hintText: "Password",
-                obscureText: true,
+                obscureText: false,
               ),
               const SizedBox(height: 20),
               MyTextField(
                 controller: _password,
-                hintText: "Password",
+                hintText: "Confirm password",
                 obscureText: true,
               ),
               const SizedBox(height: 20),
@@ -70,7 +73,10 @@ class _RegosterPageState extends State<RegosterPage> {
                 onTap: () {},
               ),
               const SizedBox(height: 15),
-              const LoginText(),
+              RegText(
+                onTap: Provider.of<ToggleProvider>(context, listen: false)
+                    .tapToggle,
+              ),
             ],
           ),
         ),
