@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wall_online/auth/login_or_auth.dart';
 import 'package:wall_online/pages/home_page.dart';

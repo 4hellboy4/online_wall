@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wall_online/provider/log_or_reg_toggle.dart';
-import 'package:wall_online/widgets/login_text/login_text.dart';
 import 'package:wall_online/widgets/my_button/my_button.dart';
 import 'package:wall_online/widgets/my_text_field/my_text_field.dart';
 import 'package:wall_online/widgets/register_text/reg_text.dart';

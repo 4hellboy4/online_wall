@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wall_online/pages/register_page.dart';
@@ -22,6 +23,38 @@ class _LoginPageState extends State<LoginPage> {
       context,
       MaterialPageRoute(
         builder: (context) => const RegisterPage(),
+      ),
+    );
+  }
+
+  void signIn(String email, String password) async {
+    loading();
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      if (context.mounted) Navigator.pop(context);
+    } on FirebaseException catch (e) {
+      Navigator.pop(context);
+      showMessage(e.code);
+    }
+  }
+
+  void loading() {
+    showDialog(
+      context: context,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  void showMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(message),
       ),
     );
   }
@@ -71,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               MyButton(
                 name: "Sign In",
-                onTap: () {},
+                onTap: () => signIn(_email.text, _password.text),
               ),
               const SizedBox(height: 15),
               LoginText(
