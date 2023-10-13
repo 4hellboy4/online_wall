@@ -25,6 +25,10 @@ class _HomePageState extends State<HomePage> {
         "name": currentUser.email,
         "msg": _textController.text,
         "time": Timestamp.now(),
+        "likes": [],
+      });
+      setState(() {
+        _textController.clear();
       });
     }
   }
@@ -32,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[350],
       appBar: AppBar(
         backgroundColor: Colors.grey[900],
         title: const Text(
@@ -49,10 +54,13 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: StreamBuilder(
+              child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection("UserPosts")
-                    .orderBy("TimeStamp", descending: false)
+                    .orderBy(
+                      "time",
+                      descending: false,
+                    )
                     .snapshots(),
                 builder: (context, snap) {
                   if (snap.hasData) {
@@ -63,6 +71,8 @@ class _HomePageState extends State<HomePage> {
                         return WallPostMsg(
                           msg: post["msg"],
                           user: post["name"],
+                          userId: post.id,
+                          likes: List<String>.from(post["likes"] ?? []),
                         );
                       },
                     );
@@ -78,7 +88,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
               child: Row(
                 children: <Widget>[
                   Expanded(
@@ -89,13 +99,19 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: post,
                     icon: const Icon(Icons.arrow_circle_up),
                   )
                 ],
               ),
             ),
-            Text(currentUser.email!),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: Text(
+                "Loged in as ${currentUser.email!}",
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
           ],
         ),
       ),

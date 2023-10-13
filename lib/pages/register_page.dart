@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wall_online/provider/log_or_reg_toggle.dart';
@@ -23,6 +24,42 @@ class _RegisterPageState extends State<RegisterPage> {
     _password.dispose();
     _confirmedPassword.dispose();
     super.dispose();
+  }
+
+  void signUp() async {
+    showDialog(
+      context: context,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    if (_password.text != _confirmedPassword.text) {
+      Navigator.pop(context);
+
+      displayMsg("Password don't match");
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _email.text,
+        password: _password.text,
+      );
+      if (context.mounted) Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      displayMsg(e.code);
+    }
+  }
+
+  void displayMsg(String txt) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Text(txt),
+      ),
+    );
   }
 
   @override
@@ -62,14 +99,14 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 20),
               MyTextField(
-                controller: _password,
+                controller: _confirmedPassword,
                 hintText: "Confirm password",
                 obscureText: true,
               ),
               const SizedBox(height: 20),
               MyButton(
                 name: "Sign In",
-                onTap: () {},
+                onTap: signUp,
               ),
               const SizedBox(height: 15),
               RegText(

@@ -11,7 +11,6 @@ class LoginOrAuth extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool toggle =
         Provider.of<ToggleProvider>(context, listen: true).toggle;
-
     if (!toggle) {
       return const LoginPage();
     } else {
