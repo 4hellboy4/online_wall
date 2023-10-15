@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:wall_online/pages/profile_page.dart';
+import 'package:wall_online/widgets/my_drawer/my_drawer.dart';
 import 'package:wall_online/widgets/my_text_field/my_text_field.dart';
 import 'package:wall_online/widgets/wall_post_msg/wall_post_msg.dart';
 
@@ -33,11 +35,23 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void profilePage() {
+    Navigator.pop(context);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ProfilePage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[350],
       appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.grey[900],
         title: const Text(
           "Home Page",
@@ -50,6 +64,7 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
+      drawer: MyDrawer(goToProfilePage: profilePage, logoutPage: signOut),
       body: Center(
         child: Column(
           children: <Widget>[
