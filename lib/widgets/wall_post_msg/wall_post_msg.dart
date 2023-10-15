@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,21 @@ class _WallPostMsgState extends State<WallPostMsg> {
   }
 
   void toggleLike() {
-    isLiked = !isLiked;
+    setState(() {
+      isLiked = !isLiked;
+    });
+
+    DocumentReference postRef = FirebaseFirestore.instance.collection("UserPosts").doc(widget.userId);
+
+    if (isLiked) {
+      postRef.update({
+        "likes": FieldValue.arrayUnion([currentUser.email]),
+      });
+    } else {
+      postRef.update({
+        "likes": FieldValue.arrayRemove([currentUser.email]),
+      });
+    }
   }
 
   @override
@@ -48,10 +63,11 @@ class _WallPostMsgState extends State<WallPostMsg> {
           Column(
             children: <Widget>[
               LikeButton(
-                isLiked: false,
-                onTap: () {},
-              )
-
+                isLiked: isLiked,
+                onTap: toggleLike,
+              ),
+              const SizedBox(height: 5),
+              Text(widget.likes.length.toString()),
               //like counter
             ],
           ),
