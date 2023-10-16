@@ -11,7 +11,7 @@ class MyTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 10.0),
+      padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
       child: ListTile(
         onTap: onTap,
         leading: Icon(

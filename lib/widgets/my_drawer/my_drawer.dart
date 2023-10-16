@@ -16,22 +16,27 @@ class MyDrawer extends StatelessWidget {
     return Drawer(
       backgroundColor: Colors.grey[900],
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          const DrawerHeader(
-            child: Icon(
-              Icons.person,
-              color: Colors.white,
-              size: 65,
-            ),
-          ),
-          MyTile(
-              icon: Icons.home,
-              text: "H O M E",
-              onTap: () => Navigator.pop(context)),
-          MyTile(
-            icon: Icons.person_2,
-            text: "P R O F I L E",
-            onTap: goToProfilePage,
+          Column(
+            children: <Widget>[
+              const DrawerHeader(
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white,
+                  size: 65,
+                ),
+              ),
+              MyTile(
+                  icon: Icons.home,
+                  text: "H O M E",
+                  onTap: () => Navigator.pop(context)),
+              MyTile(
+                icon: Icons.person_2,
+                text: "P R O F I L E",
+                onTap: goToProfilePage,
+              ),
+            ],
           ),
           MyTile(
             icon: Icons.exit_to_app,
