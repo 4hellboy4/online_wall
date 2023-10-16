@@ -18,7 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey[700],
+        backgroundColor: Colors.grey[900],
         title: Text(
           "Edit $name",
           style: const TextStyle(color: Colors.white),

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:wall_online/widgets/comment_button/comment_button.dart';
 import 'package:wall_online/widgets/like_button/like_button.dart';
 
 class WallPostMsg extends StatefulWidget {
@@ -23,7 +23,7 @@ class WallPostMsg extends StatefulWidget {
 
 class _WallPostMsgState extends State<WallPostMsg> {
   final currentUser = FirebaseAuth.instance.currentUser!;
-  bool isLiked = false; //TODO: kepp closer
+  bool isLiked = false; //TODO: look closer
   final TextEditingController _comment = TextEditingController();
 
   @override
@@ -52,7 +52,11 @@ class _WallPostMsgState extends State<WallPostMsg> {
   }
 
   void postComment(String text) {
-    FirebaseFirestore.instance.doc(widget.postId).collection("Comments").add({
+    FirebaseFirestore.instance
+        .collection("UserPosts")
+        .doc(widget.postId)
+        .collection("Comments")
+        .add({
       "CommentText": text,
       "CommentedBy": currentUser.email,
       "CommentTime": Timestamp.now(),
@@ -79,14 +83,21 @@ class _WallPostMsgState extends State<WallPostMsg> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context);
+              _comment.clear();
+            },
             child: const Text(
               'Cancel',
               style: TextStyle(color: Colors.white),
             ),
           ),
           TextButton(
-            onPressed: () => postComment(_comment.text),
+            onPressed: () {
+              postComment(_comment.text);
+              Navigator.pop(context);
+              _comment.clear();
+            },
             child: const Text(
               'Save',
               style: TextStyle(color: Colors.white),
@@ -106,36 +117,56 @@ class _WallPostMsgState extends State<WallPostMsg> {
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
       ),
-      child: Row(
-        children: [
-          Column(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            widget.user,
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            widget.msg,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              LikeButton(
-                isLiked: isLiked,
-                onTap: toggleLike,
+              Column(
+                children: [
+                  LikeButton(
+                    isLiked: isLiked,
+                    onTap: toggleLike,
+                  ),
+                  const SizedBox(height: 5),
+                  Text(widget.likes.length.toString()),
+                ],
               ),
-              const SizedBox(height: 5),
-              Text(widget.likes.length.toString()),
+              const SizedBox(width: 20),
+              Column(
+                children: [
+                  CommentButton(
+                    onTap: commentDialog,
+                  ),
+                  const SizedBox(height: 5),
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection("UserPosts")
+                        .doc(widget.postId)
+                        .collection("Comments")
+                        .snapshots(),
+                    builder: (context, snap) {
+                      return Center();
+                    },
+                  )
+                ],
+              ),
             ],
           ),
           const SizedBox(width: 15),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                widget.user,
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                widget.msg,
-              ),
-            ],
-          ),
         ],
       ),
     );
