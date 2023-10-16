@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                         return WallPostMsg(
                           msg: post["msg"],
                           user: post["name"],
-                          userId: post.id,
+                          postId: post.id,
                           likes: List<String>.from(post["likes"] ?? []),
                         );
                       },
