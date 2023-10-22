@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wall_online/widgets/comment_button/comment_button.dart';
 import 'package:wall_online/widgets/like_button/like_button.dart';
+import 'package:wall_online/widgets/my_comment/my_comment.dart';
 
 class WallPostMsg extends StatefulWidget {
   final String msg;
@@ -23,13 +24,26 @@ class WallPostMsg extends StatefulWidget {
 
 class _WallPostMsgState extends State<WallPostMsg> {
   final currentUser = FirebaseAuth.instance.currentUser!;
-  bool isLiked = false; //TODO: look closer
+  bool isLiked = false;
   final TextEditingController _comment = TextEditingController();
+  bool isCommentOpened = false;
 
   @override
   void initState() {
     super.initState();
     isLiked = widget.likes.contains(currentUser.email);
+  }
+
+  @override
+  void dispose() {
+    _comment.dispose();
+    super.dispose();
+  }
+
+  void toggleComment() {
+    setState(() {
+      isCommentOpened = !isCommentOpened;
+    });
   }
 
   void toggleLike() {
@@ -40,27 +54,35 @@ class _WallPostMsgState extends State<WallPostMsg> {
     DocumentReference postRef =
         FirebaseFirestore.instance.collection("UserPosts").doc(widget.postId);
 
-    if (isLiked) {
-      postRef.update({
-        "likes": FieldValue.arrayUnion([currentUser.email]),
-      });
-    } else {
-      postRef.update({
-        "likes": FieldValue.arrayRemove([currentUser.email]),
-      });
+    try {
+      if (isLiked) {
+        postRef.update({
+          "likes": FieldValue.arrayUnion([currentUser.email]),
+        });
+      } else {
+        postRef.update({
+          "likes": FieldValue.arrayRemove([currentUser.email]),
+        });
+      }
+    } on FirebaseException catch (e) {
+      print(e.code);
     }
   }
 
   void postComment(String text) {
-    FirebaseFirestore.instance
-        .collection("UserPosts")
-        .doc(widget.postId)
-        .collection("Comments")
-        .add({
-      "CommentText": text,
-      "CommentedBy": currentUser.email,
-      "CommentTime": Timestamp.now(),
-    });
+    try {
+      FirebaseFirestore.instance
+          .collection("UserPosts")
+          .doc(widget.postId)
+          .collection("Comments")
+          .add({
+        "CommentText": text,
+        "CommentedBy": currentUser.email,
+        "CommentTime": Timestamp.now(),
+      });
+    } on FirebaseException catch (e) {
+      print(e.code);
+    }
   }
 
   void commentDialog() {
@@ -108,9 +130,41 @@ class _WallPostMsgState extends State<WallPostMsg> {
     );
   }
 
+  void deletePost() async {
+    try {
+      var _comments = await FirebaseFirestore.instance
+          .collection("UserPosts")
+          .doc(widget.postId)
+          .collection("Comments")
+          .get();
+      for (var com in _comments.docs) {
+        FirebaseFirestore.instance
+            .collection("UserPosts")
+            .doc(widget.postId)
+            .collection("Comments")
+            .doc(com.id)
+            .delete();
+      }
+      FirebaseFirestore.instance
+          .collection("UserPosts")
+          .doc(widget.postId)
+          .delete()
+          .then((value) => print("deleted"))
+          .catchError((error) => print("something went wrong"));
+    } on FirebaseException catch (e) {
+      print(e.code);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Stream<QuerySnapshot> _commentsStream = FirebaseFirestore.instance
+        .collection("UserPosts")
+        .doc(widget.postId)
+        .collection("Comments")
+        .snapshots();
     return Container(
+      height: isCommentOpened ? 500 : 150,
       margin: const EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -118,19 +172,29 @@ class _WallPostMsgState extends State<WallPostMsg> {
         color: Colors.white,
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        // crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            widget.user,
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            widget.msg,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    widget.user,
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    widget.msg,
+                  ),
+                ],
+              ),
+              IconButton(onPressed: deletePost, icon: const Icon(Icons.delete)),
+            ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -149,24 +213,71 @@ class _WallPostMsgState extends State<WallPostMsg> {
               Column(
                 children: [
                   CommentButton(
-                    onTap: commentDialog,
+                    onTap: toggleComment,
                   ),
                   const SizedBox(height: 5),
                   StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection("UserPosts")
-                        .doc(widget.postId)
-                        .collection("Comments")
-                        .snapshots(),
+                    stream: _commentsStream,
                     builder: (context, snap) {
-                      return Center();
+                      if (!snap.hasData) {
+                        return const Text("0");
+                      } else if (snap.hasError) {
+                        // Handle the error
+                        return const Text("0");
+                      }
+                      return Text(snap.data!.docs.length.toString());
                     },
-                  )
+                  ),
                 ],
               ),
             ],
           ),
-          const SizedBox(width: 15),
+          if (isCommentOpened)
+            StreamBuilder<QuerySnapshot>(
+              stream: _commentsStream,
+              builder: (context, snap) {
+                if (snap.hasData) {
+                  return Expanded(
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            TextButton(
+                              onPressed: commentDialog,
+                              child: const Text("Post Comment"),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: snap.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              final comment = snap.data!.docs[index];
+                              return MyComment(
+                                text: comment["CommentText"],
+                                user: comment["CommentedBy"],
+                                time: "13:28",
+                                commentIndex: comment.id,
+                                postId: widget.postId,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (!snap.hasData) {
+                  return const Center(
+                    child: Text("something went wrong..."),
+                  );
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
         ],
       ),
     );
